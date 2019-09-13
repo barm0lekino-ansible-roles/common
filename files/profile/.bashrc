@@ -117,12 +117,10 @@ if ! shopt -oq posix; then
 fi
 
 #MY color promt
-#PS1="\[\033[1;33;1;32m\]\u@\h:\[\033[1;31m\]\w$ \[\033[0m\]\[\033[0m\]"
 PS1="\[\033[1;33;1;32m\]\u@\h:\[\033[1;31m\]\w$ \[\033[0m\] \[\e[36m\]"
 
 
 complete -C /usr/local/bin/terraform terraform
-export PATH=$PATH:/usr/local/go/bin
 
 if [ -n "$DISPLAY" -a "$TERM" == "xterm" ]; then
     export TERM=xterm-256color
