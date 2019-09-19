@@ -4,4 +4,3 @@
       pkg: "{{ rh_packages }}"
       update_cache: yes
     tags: ["common", "packages"]
-

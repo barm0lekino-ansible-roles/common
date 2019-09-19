@@ -9,12 +9,12 @@
       - Restart sshd
     tags: ["ssh"]
 
-  - name: SSH ClientAliveInterval {{ ssh.ClientAliveInterval}}
+  - name: SSH ClientAliveInterval {{ ssh.ClientAliveInterval }}
     lineinfile:
       dest: /etc/ssh/sshd_config
       state: present
       regexp: '^ClientAliveInterval'
-      line: ClientAliveInterval {{ ssh.ClientAliveInterval}}
+      line: ClientAliveInterval {{ ssh.ClientAliveInterval }}
     notify:
       - Restart sshd
     tags: ["ssh"]
