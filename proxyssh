@@ -1,0 +1,1 @@
+ssh -o ProxyCommand=nc -x 172.25.241.252:443 %h %p ubuntu@130.61.197.149

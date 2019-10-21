@@ -13,15 +13,15 @@
     - iptables-services
 
   packages:
-    - iptables
-    - htop
     - curl
+    - wget
     - git
+    - iptables
+    - net-tools
+    - htop
     - vim
     - nano
     - unzip
-    - sudo
-    - curl
-    - net-tools
     - telnet
     - sshpass
+    - tmux
