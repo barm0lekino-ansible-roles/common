@@ -1,4 +1,6 @@
 ---
+  config_users:
+
   ssh:
     TCPKeepAlive: 'yes'
     ClientAliveInterval: 300
@@ -18,10 +20,10 @@
     - git
     - iptables
     - net-tools
-    - htop
     - vim
     - nano
     - unzip
     - telnet
-    - sshpass
     - tmux
+    - htop
+    #- sshpass

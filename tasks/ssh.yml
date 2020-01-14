@@ -6,7 +6,7 @@
       regexp: '^TCPKeepAlive'
       line: TCPKeepAlive {{ ssh.TCPKeepAlive }}
     notify:
-      - Restart sshd
+      - Reload sshd
     tags: ["ssh"]
 
   - name: SSH ClientAliveInterval {{ ssh.ClientAliveInterval }}
@@ -16,7 +16,7 @@
       regexp: '^ClientAliveInterval'
       line: ClientAliveInterval {{ ssh.ClientAliveInterval }}
     notify:
-      - Restart sshd
+      - Reload sshd
     tags: ["ssh"]
 
   - name: SSH ClientAliveCountMax {{ ssh.ClientAliveCountMax }}
@@ -26,5 +26,5 @@
       regexp: '^ClientAliveCountMax '
       line: ClientAliveCountMax {{ ssh.ClientAliveCountMax }}
     notify:
-      - Restart sshd
+      - Reload sshd
     tags: ["ssh"]

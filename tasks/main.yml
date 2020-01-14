@@ -1,13 +1,8 @@
 ---
-#  - name: install PHP
-#    raw: sudo apt -y update && sudo apt install -y python-minimal && update-alternatives --install /usr/bin/python python /usr/bin/python2.7 1
-#    tags: ["common", "php"]
-
-  - name: installing common packages
-    package:
-      pkg: "{{ packages }}"
-      update_cache: yes
-    tags: ["common", "packages"]
+  - name: Gathering facts
+    setup: filter='ansible_os_family'
+    #setup: filter='*'
+    tags: ["common"]
 
   - name: include Debian tasks
     include: debian.yml
@@ -19,9 +14,11 @@
     when: (ansible_os_family == "RedHat")
     tags: ["common"]
 
-  - name: Gathering facts
-    setup: filter='*'
-    tags: ["common"]
+  - name: installing common packages
+    package:
+      pkg: "{{ packages }}"
+      update_cache: yes
+    tags: ["common", "packages"]
 
   - name: include iptables task
     include: iptables.yml
@@ -41,11 +38,36 @@
       src: files/profile/
       dest: ~/
       mode: preserve
-    tags: ["common", "copy"]
+    #tags: ["common", "copy"]
 
   - name: Copy files to skel
     copy:
       src: files/profile/
       dest: /etc/skel/
-      mode: preserve
+    tags: ["common", "copy"]
+
+  # Проверяем, созданы ли профили пользоветелей
+  - name: "Check users profile {{ item }} exist"
+    stat:
+      path: "/home/{{ item }}"
+    register: user_profile_exists
+    with_items:
+      - "{{ config_users }}"
+    tags: common, copy, debug
+
+#  - name: "Check users profile debug2 "
+#    debug:
+#      msg: "exist: {{item.stat.exists}}, item_name:{{item.item}}, path: {{item.invocation.module_args.path}}"
+#    with_items: "{{user_profile_exists.results}}"
+#    tags: common, copy, debug
+
+  # Копируем файлы в профили пользователей (если они есть)
+  # config_users находится внутри user_profile_exists.results.item
+  - name: Copy files to users profile
+    copy:
+      src: files/profile/
+      dest: /home/{{ item.item }}/ #{{item.invocation.module_args.path}}
+    with_items:
+      - "{{user_profile_exists.results}}"
+    when: item.stat.exists == True
     tags: ["common", "copy"]

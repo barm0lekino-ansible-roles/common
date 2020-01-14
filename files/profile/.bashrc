@@ -99,6 +99,8 @@ alias .....='cd ../../../../'
 alias .4='cd ../../../../'
 alias .5='cd ../../../../..'
 
+alias vi='vim'
+alias ip='ip -c'
 alias df='df -h'
 alias free='free -h'
 alias meminfo='free -hlt'
