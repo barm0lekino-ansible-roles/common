@@ -20,9 +20,9 @@
       update_cache: yes
     tags: ["common", "packages"]
 
-  - name: include iptables task
-    include: iptables.yml
-    tags: ["common", "iptables"]
+#  - name: include iptables task
+#    include: iptables.yml
+#    tags: ["common", "iptables"]
 
   - name: include ssh task
     include: ssh.yml
