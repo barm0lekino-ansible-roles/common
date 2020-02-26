@@ -8,6 +8,6 @@
       - "save iptables"
 
   - name: Save iptables Debian/Ubuntu
-    #shell: "service netfilter-persistent save warn=no"
-    script: files/iptables_save_deb.sh
+    shell: "service netfilter-persistent save warn=no"
+    #script: files/iptables_save_deb.sh
     listen: "save iptables"
