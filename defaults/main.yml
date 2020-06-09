@@ -7,6 +7,7 @@
   deb_packages:
     - iptables-persistent
     - aptitude
+    - htop
 
   rh_packages:
     - epel-release
@@ -18,10 +19,9 @@
     - git
     - iptables
     - net-tools
-    - htop
     - vim
     - nano
     - unzip
     - telnet
-    - sshpass
     - tmux
+    #- sshpass

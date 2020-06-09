@@ -11,8 +11,3 @@
     #shell: "service netfilter-persistent save warn=no"
     script: files/iptables_save_deb.sh
     listen: "save iptables"
-
-  - name: Restart sshd
-    service:
-      name: sshd
-      state: restarted

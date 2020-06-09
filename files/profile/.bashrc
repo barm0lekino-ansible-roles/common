@@ -93,12 +93,14 @@ alias la='ls -A'
 alias l='ls -CF'
 
 alias ..='cd ..'
-alias ...='cd ../../../'
-alias ....='cd ../../../../'
-alias .....='cd ../../../../'
+alias ...='cd ../../'
+alias ....='cd ../../../'
+alias .....='cd ../../../'
 alias .4='cd ../../../../'
-alias .5='cd ../../../../..'
+alias .5='cd ../../../../../'
 
+alias vi='vim'
+alias ip='ip -c'
 alias df='df -h'
 alias free='free -h'
 alias meminfo='free -hlt'
@@ -129,12 +131,20 @@ if ! shopt -oq posix; then
   fi
 fi
 
-#MY color promt
-PS1="\[\033[1;33;1;32m\]\u@\h:\[\033[1;31m\]\w$ \[\033[0m\] \[\e[36m\]"
-
+if [ $(id -u) -eq 0 ];
+then # you are root, make the prompt red
+    #MY color promt
+    PS1="\[\033[1;33;1;32m\]\u@\h:\[\033[1;31m\]\w$ \[\033[0m\] \[\e[36m\]"
+else
+    PS1='\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w$ \[\033[0m\] \[\e[36m\]'
+    #PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
+fi
+# установка цвета для вывода, чтобы он отличался от вводимого пользователем
+trap 'printf "\e[0m" "$_"' DEBUG
 
 complete -C /usr/local/bin/terraform terraform
 
+# цветной режим в vim и пр (меняем 8 цветов на 256)
 if [ -n "$DISPLAY" -a "$TERM" == "xterm" ]; then
     export TERM=xterm-256color
 fi
