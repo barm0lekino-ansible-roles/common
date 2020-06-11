@@ -18,6 +18,8 @@
 
   - name: install RHEL/CentOS packages
     package:
-      pkg: "{{ rh_packages }}"
+      pkg: "{{ item }}"
       update_cache: yes
+    with_items:
+      - "{{ rh_packages }}"
     tags: ["common", "packages"]

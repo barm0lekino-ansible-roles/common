@@ -1,0 +1,26 @@
+---
+- hosts: all
+  #remote_user: ak
+  become: yes
+  #become_user: root
+
+  pre_tasks:
+    - name: Include extra vars
+      include_vars:
+        file: /home/ak/.ssh/.ansible_pwd
+        name: ext_vars
+
+    - name: Set facts
+      set_fact:
+        become_user: "{{ ext_vars.SUDO_USER }}"
+        ansible_become_pass: "{{ ext_vars.SUDO_PASSWORD }}"
+
+    - debug: msg="become_user = {{ become_user }}" #, ansible_become_pass = {{ ansible_become_pass }}"
+
+  gather_facts: yes
+  vars:
+    config_users:
+      - ubuntu
+      - ak
+  roles:
+    - barm0leykin.common

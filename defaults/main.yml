@@ -1,5 +1,7 @@
 ---
   config_users:
+    - ubuntu
+    - ak
 
   ssh:
     TCPKeepAlive: 'yes'

@@ -16,8 +16,10 @@
 
   - name: installing common packages
     package:
-      pkg: "{{ packages }}"
+      pkg: "{{ item }}"
       update_cache: yes
+    with_items:
+      - "{{ packages }}"
     tags: ["common", "packages"]
 
 #  - name: include iptables task
@@ -46,6 +48,9 @@
       dest: /etc/skel/
     tags: ["common", "copy"]
 
+# способ получить домашний каталог юзера
+# getent passwd "$USER" | cut -d: -f6
+
   # Проверяем, созданы ли профили пользоветелей
   - name: "Check users profile {{ item }} exist"
     stat:
@@ -67,6 +72,8 @@
     copy:
       src: files/profile/
       dest: /home/{{ item.item }}/ #{{item.invocation.module_args.path}}
+      owner: "{{ item.item }}"
+      group: "{{ item.item }}"
     with_items:
       - "{{user_profile_exists.results}}"
     when: item.stat.exists == True
