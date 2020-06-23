@@ -1,18 +1,22 @@
 ---
-  - name: Gathering facts
+  - name: Gathering OS Family facts
     setup: filter='ansible_os_family'
     #setup: filter='*'
-    tags: ["common"]
+    tags: common
+
+  - name: include profiles config
+    include: profiles.yml
+    tags: common
 
   - name: include Debian tasks
     include: debian.yml
     when: (ansible_os_family == "Debian")
-    tags: ["common"]
+    tags: common
 
   - name: include RedHat tasks
     include: redhat.yml
     when: (ansible_os_family == "RedHat")
-    tags: ["common"]
+    tags: common
 
   - name: installing common packages
     package:
@@ -20,7 +24,7 @@
       update_cache: yes
     with_items:
       - "{{ packages }}"
-    tags: ["common", "packages"]
+    tags: common, packages
 
 #  - name: include iptables task
 #    include: iptables.yml
@@ -28,53 +32,10 @@
 
   - name: include ssh task
     include: ssh.yml
-    tags: ["common", "ssh"]
+    tags: common, ssh
 
   - name: Set timezone to Europe/Moscow
     timezone:
       name: Europe/Moscow
-    tags: ["common"]
+    tags: common
 
-  - name: Copy files to root profile
-    copy:
-      src: files/profile/
-      dest: ~/
-      mode: preserve
-    #tags: ["common", "copy"]
-
-  - name: Copy files to skel
-    copy:
-      src: files/profile/
-      dest: /etc/skel/
-    tags: ["common", "copy"]
-
-# способ получить домашний каталог юзера
-# getent passwd "$USER" | cut -d: -f6
-
-  # Проверяем, созданы ли профили пользоветелей
-  - name: "Check users profile {{ item }} exist"
-    stat:
-      path: "/home/{{ item }}"
-    register: user_profile_exists
-    with_items:
-      - "{{ config_users }}"
-    tags: common, copy, debug
-
-#  - name: "Check users profile debug2 "
-#    debug:
-#      msg: "exist: {{item.stat.exists}}, item_name:{{item.item}}, path: {{item.invocation.module_args.path}}"
-#    with_items: "{{user_profile_exists.results}}"
-#    tags: common, copy, debug
-
-  # Копируем файлы в профили пользователей (если они есть)
-  # config_users находится внутри user_profile_exists.results.item
-  - name: Copy files to users profile
-    copy:
-      src: files/profile/
-      dest: /home/{{ item.item }}/ #{{item.invocation.module_args.path}}
-      owner: "{{ item.item }}"
-      group: "{{ item.item }}"
-    with_items:
-      - "{{user_profile_exists.results}}"
-    when: item.stat.exists == True
-    tags: ["common", "copy"]
