@@ -1,0 +1,5 @@
+SUDO_USER:
+  'root'
+SUDO_PASSWORD:
+  'mypassword'
+

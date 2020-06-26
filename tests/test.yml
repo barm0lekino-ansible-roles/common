@@ -1,17 +1,14 @@
 #---
-- name: COMMON
-  tags:
-    - common
+- name: PYTHON_INSTALL
   hosts: all
+  strategy: linear # отключаем mitogen до установки питона
   gather_facts: no # нужно отключить предварительный сбор сведений, т.к. сначала дожны отработать задачи pre_tasks
-  #remote_user: ak
-  #become_user: root
   become: yes
 
   pre_tasks:
     - name: Include extra vars
       include_vars:
-        file: /home/ak/.ssh/ansible_linux_pwd
+        file: ~/.ssh/ansible_linux_pwd
         name: ext_vars
 
     - name: Set facts
@@ -19,11 +16,55 @@
         become_user: "{{ ext_vars.SUDO_USER }}"
         ansible_become_pass: "{{ ext_vars.SUDO_PASSWORD }}"
 
-    - debug: msg="become_user = {{ become_user }}, ansible_become_pass = {{ ansible_become_pass }}"
+    - debug: msg="become_user = {{ become_user }}" #, ansible_become_pass = {{ ansible_become_pass }}"
 
+    - name: Get OS
+      raw: cat /etc/*release | grep ^ID_LIKE= | tr -d "\n"
+      register: os
+    #- debug: msg="os = {{ os }}"
+    #- debug: msg="os = {{ os.stdout }} oss= {{ os.stdout_lines }}"
+
+    - name: check /usr/bin/python
+      raw: test -e /usr/bin/python
+      register: python_is_absent
+      ignore_errors: true
+    #- debug: msg="python_is_absent = {{ python_is_absent.rc }}"
+
+    - name: check /usr/bin/python3
+      raw: test -e /usr/bin/python3
+      register: python3_is_absent
+      ignore_errors: true
+      when: python_is_absent.rc == 1
+
+    - name: run apt update and install python
+      raw: "{{ item }}"
+      loop:
+        - sudo apt update
+        - sudo apt install -y python3-minimal
+      become: true
+      when: '"debian" in os.stdout and python_is_absent.rc == 1 and python3_is_absent.rc == 1'
+
+    - name: run yum install python
+      raw: "{{ item }}"
+      loop:
+        - sudo yum -y install python3
+      become: true
+      when: '"rhel" in os.stdout and python_is_absent.rc == 1 and python3_is_absent.rc == 1'
+
+    - name: set symlink to python3
+      raw: ln -s /usr/bin/python3 /usr/bin/python
+      when: python_is_absent.rc == 1 #and python3_is_absent.rc == 0
+
+- name: COMMON_LINUX_CONFIG
+  tags:
+    - common
+  hosts: all
+  strategy: mitogen_linear # если используется mitogen
+  become: yes
+  #gather_facts: yes
   vars:
     config_users:
       - ubuntu
-
+      - ak
   roles:
     - barm0leykin.common
