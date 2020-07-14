@@ -39,3 +39,9 @@
       name: Europe/Moscow
     tags: common
 
+  - name: Set hostname
+    hostname:
+      name: "{{ hostname }}"
+    when: hostname != "default"
+    tags: common
+
