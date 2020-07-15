@@ -26,6 +26,15 @@
       - "{{ packages }}"
     tags: common, packages
 
+  - name: installing additional packages
+    package:
+      pkg: "{{ item }}"
+      update_cache: yes
+    with_items:
+      - "{{ additional_packages | default([]) }}"
+    tags: common, packages
+
+
 #  - name: include iptables task
 #    include: iptables.yml
 #    tags: ["common", "iptables"]
