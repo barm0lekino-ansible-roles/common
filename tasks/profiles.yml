@@ -4,16 +4,22 @@
       src: files/profile/
       dest: /root/
       mode: preserve
-    tags: common, copy
+    tags: profile, copy
 
   - name: Copy files to skel
     copy:
       src: files/profile/
       dest: /etc/skel/
-    tags: common, copy
+    tags: profile, copy
 
-# способ получить домашний каталог юзера
-# getent passwd "$USER" | cut -d: -f6
+#  - name: "Check users profile debug2 "
+#    debug:
+#      msg: "exist: {{item.stat.exists}}, item_name:{{item.item}}, path: {{item.invocation.module_args.path}}"
+#    with_items: "{{user_profile_exists.results}}"
+#    tags: profile, copy, debug
+
+  # способ получить домашний каталог юзера
+  # getent passwd "$USER" | cut -d: -f6
 
   # Проверяем, созданы ли профили пользоветелей
   - name: "Check users profile {{ item }} exist"
@@ -22,13 +28,8 @@
     register: user_profile_exists
     with_items:
       - "{{ config_users }}"
-    tags: common, copy, debug
-
-#  - name: "Check users profile debug2 "
-#    debug:
-#      msg: "exist: {{item.stat.exists}}, item_name:{{item.item}}, path: {{item.invocation.module_args.path}}"
-#    with_items: "{{user_profile_exists.results}}"
-#    tags: common, copy, debug
+    ignore_errors: true
+    tags: profile, copy, debug
 
   # Копируем файлы в профили пользователей (если они есть)
   # config_users находится внутри user_profile_exists.results.item
@@ -41,4 +42,4 @@
     with_items:
       - "{{user_profile_exists.results}}"
     when: item.stat.exists == True
-    tags: ["common", "copy"]
+    tags: ["profile", "copy"]

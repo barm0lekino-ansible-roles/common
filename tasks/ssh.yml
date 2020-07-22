@@ -7,7 +7,7 @@
       line: TCPKeepAlive {{ ssh.TCPKeepAlive }}
     notify:
       - Reload sshd
-    tags: ["ssh"]
+    tags: ssh
 
   - name: SSH ClientAliveInterval {{ ssh.ClientAliveInterval }}
     lineinfile:
@@ -17,7 +17,7 @@
       line: ClientAliveInterval {{ ssh.ClientAliveInterval }}
     notify:
       - Reload sshd
-    tags: ["ssh"]
+    tags: ssh
 
   - name: SSH ClientAliveCountMax {{ ssh.ClientAliveCountMax }}
     lineinfile:
@@ -27,4 +27,21 @@
       line: ClientAliveCountMax {{ ssh.ClientAliveCountMax }}
     notify:
       - Reload sshd
-    tags: ["ssh"]
+    tags: ssh
+
+  - name: Set authorized key taken from file for ROOT
+    authorized_key:
+      user: root
+      state: present
+      key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+    tags: ssh, ssh_keys
+
+  - name: Set authorized key taken from file
+    authorized_key:
+      user: "{{ item }}"
+      state: present
+      key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+    with_items:
+      - "{{user_profile_exists.results}}"
+    when: item.stat.exists == True
+    tags: ssh, ssh_keys

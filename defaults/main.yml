@@ -1,5 +1,6 @@
 ---
   config_users:
+    - root
     - ubuntu
     - ak
 
@@ -28,8 +29,8 @@
     - nano
     - unzip
     - telnet
-    - tmux
-  # - sshpass
+    #- tmux
+    #- sshpass
 
   hostname:
     - default
