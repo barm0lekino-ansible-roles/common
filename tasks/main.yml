@@ -8,32 +8,6 @@
     include: profiles.yml
     tags: common
 
-  - name: include Debian tasks
-    include: debian.yml
-    when: (ansible_os_family == "Debian")
-    tags: common
-
-  - name: include RedHat tasks
-    include: redhat.yml
-    when: (ansible_os_family == "RedHat")
-    tags: common
-
-  - name: installing common packages
-    package:
-      pkg: "{{ item }}"
-      update_cache: yes
-    with_items:
-      - "{{ packages }}"
-    tags: common, packages
-
-  - name: installing additional packages
-    package:
-      pkg: "{{ item }}"
-      update_cache: yes
-    with_items:
-      - "{{ additional_packages | default([]) }}"
-    tags: common, packages
-
 #  - name: include iptables task
 #    include: iptables.yml
 #    tags: ["common", "iptables"]
@@ -60,6 +34,35 @@
 
   - name: Set hostname
     hostname:
-      name: "{{ hostname }}"
-    when: hostname != "default"
+      name: "{{ item }}"
+    with_items:
+      - "{{ hostname }}"
+    when: item != "default"
+    tags: hostname
+
+  # Install packages
+  - name: include Debian tasks
+    include: debian.yml
+    when: (ansible_os_family == "Debian")
     tags: common
+
+  - name: include RedHat tasks
+    include: redhat.yml
+    when: (ansible_os_family == "RedHat")
+    tags: common
+
+  - name: installing common packages
+    package:
+      pkg: "{{ item }}"
+      update_cache: yes
+    with_items:
+      - "{{ packages }}"
+    tags: common, packages
+
+  - name: installing additional packages
+    package:
+      pkg: "{{ item }}"
+      update_cache: yes
+    with_items:
+      - "{{ additional_packages | default([]) }}"
+    tags: common, packages
