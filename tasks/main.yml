@@ -34,7 +34,6 @@
       - "{{ additional_packages | default([]) }}"
     tags: common, packages
 
-
 #  - name: include iptables task
 #    include: iptables.yml
 #    tags: ["common", "iptables"]
@@ -47,6 +46,17 @@
     timezone:
       name: Europe/Moscow
     tags: common
+
+  - name: Set NTP server
+    lineinfile:
+      dest: /etc/systemd/timesyncd.conf
+      state: present
+      regexp: '^NTP'
+      line: NTP={{ ntpserver }}
+    notify:
+      - Reload systemd-timesyncd
+    when: ntpserver != "default"
+    tags: ntp
 
   - name: Set hostname
     hostname:

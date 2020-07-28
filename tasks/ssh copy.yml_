@@ -1,0 +1,119 @@
+---
+  - name: SSH TCPKeepAlive {{ ssh.TCPKeepAlive }}
+    lineinfile:
+      dest: /etc/ssh/sshd_config
+      state: present
+      regexp: '^TCPKeepAlive'
+      line: TCPKeepAlive {{ ssh.TCPKeepAlive }}
+    notify:
+      - Reload sshd
+    tags: ssh
+
+  - name: SSH ClientAliveInterval {{ ssh.ClientAliveInterval }}
+    lineinfile:
+      dest: /etc/ssh/sshd_config
+      state: present
+      regexp: '^ClientAliveInterval'
+      line: ClientAliveInterval {{ ssh.ClientAliveInterval }}
+    notify:
+      - Reload sshd
+    tags: ssh
+
+  - name: SSH ClientAliveCountMax {{ ssh.ClientAliveCountMax }}
+    lineinfile:
+      dest: /etc/ssh/sshd_config
+      state: present
+      regexp: '^ClientAliveCountMax '
+      line: ClientAliveCountMax {{ ssh.ClientAliveCountMax }}
+    notify:
+      - Reload sshd
+    tags: ssh
+
+  ### SSH KEYS
+
+  # тк используется with_items, результат будет сохранен в объект dictionary (results [])
+  - name: "Save user {{ item }} profile path"
+    shell: "getent passwd '{{ item }}' | cut -d: -f6"
+    register: user_profile_path
+    with_items:
+      - "{{ config_users }}"
+    ignore_errors: true
+    tags: profile, copy, ssh_keys, debug
+
+  # - debug:
+  #     var: user_profile_path
+  #   tags: profile, copy, debug
+
+  # - name: debug 2
+  #   debug:
+  #     msg: "{{ item.stdout }}"
+  #   loop: "{{ user_profile_path.results }}"
+  #   tags: profile, copy, debug
+
+  # - name: debug 3
+  #   debug:
+  #     var: user_profile_path.results.stdout
+  #   tags: profile, copy, debug
+
+  # - name: Check users profile path
+  #   debug:
+  #     msg: "name (item): {{ item.item }}, stdout: {{ item.stdout }}, stderr: {{ item.stderr }}" #" path: {{ item.user.invocation.module_args.path }}" #" exist: {{item.stat.exists}}, item_name:{{item.item}}, path: {{item.invocation.module_args.path}}"
+  #   with_items:
+  #     - "{{ user_profile_path.results }}"
+  #   when: item.stdout != ""
+  #   tags: profile, copy, ssh_keys, debug
+
+  # - name: CHECK ALL
+  #   debug:
+  #     msg: "name (item.1.item): {{ item.1.item }}, stdout: {{ item.1.stdout }}, stderr: {{ item.1.stderr }}, key: {{ item.0}}" #" path: {{ item.user.invocation.module_args.path }}" #" exist: {{item.stat.exists}}, item_name:{{item.item}}, path: {{item.invocation.module_args.path}}"
+  #   with_nested:
+  #     - "{{ public_ssh_keys }}"
+  #     - "{{ user_profile_path.results }}"
+  #   #when: item.1.stdout != "" and item.1.stderr != ""
+  #   tags: ssh, ssh_keys
+
+  # - name: TEST users profile path
+  #   shell: "touch {{ item.stdout }}/tested.txt"
+  #   with_items:
+  #     - "{{ user_profile_path.results }}"
+  #   when: item.stdout != ""
+  #   tags: profile, copy, debug
+
+
+  # user_profile_path.results содержит item (получается item.item),
+  # а путь к домашнеме каталогу сохранился в stdout (item.stdout)
+
+  # простой вариант
+  # - name: Set authorized key taken from file
+  #   authorized_key:
+  #     user: "{{ item.item }}"
+  #     state: present
+  #     key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+  #   with_items:
+  #     - "{{ user_profile_path.results }}"
+  #   when: item.stdout != ""
+  #   tags: ssh, ssh_keys
+
+  - name: Set authorized key taken from file
+    authorized_key:
+      user: "{{ item.1.item }}"
+      state: present
+      key: "{{ lookup('file', item.0) }}"
+    with_nested:
+      - "{{ public_ssh_keys }}"
+      - "{{ user_profile_path.results }}"
+    when: item.1.stdout != ""
+    tags: ssh, ssh_keys
+
+
+  # закрытый ключ для перемещения между машинами
+  - name: Copy ssh local cloud key
+    copy:
+      src: "{{ item.0 }}"
+      dest: "{{ item.1.stdout }}/.ssh/" #"{{ item.1.invocation.module_args.path }}/.ssh/"
+      mode: preserve
+    with_nested:
+      - "{{ private_ssh_keys }}"
+      - "{{ user_profile_path.results }}"
+    when: item.1.stdout != "" #and item.1.stderr != ""
+    tags: ssh, ssh_keys

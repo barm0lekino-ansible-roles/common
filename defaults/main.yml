@@ -9,6 +9,13 @@
     ClientAliveInterval: 300
     ClientAliveCountMax: 288
 
+  private_ssh_keys:
+    - ~/.ssh/cloud
+
+  public_ssh_keys:
+    - ~/.ssh/id_rsa.pub
+    - ~/.ssh/cloud.pub
+
   deb_packages:
     - iptables-persistent
     - aptitude
@@ -33,6 +40,9 @@
     #- sshpass
 
   hostname:
+    - default
+
+  ntpserver:
     - default
 
   epel_repo_url: "https://dl.fedoraproject.org/pub/epel/epel-release-latest-{{ ansible_distribution_major_version }}.noarch.rpm"

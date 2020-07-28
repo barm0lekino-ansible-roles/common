@@ -29,19 +29,42 @@
       - Reload sshd
     tags: ssh
 
-  - name: Set authorized key taken from file for ROOT
+  ### SSH KEYS
+
+  # user_profile_path.results содержит item (получается item.item),
+  # а путь к домашнеме каталогу сохранился в stdout (item.stdout)
+
+  # простой вариант
+  # - name: Set authorized key taken from file
+  #   authorized_key:
+  #     user: "{{ item.item }}"
+  #     state: present
+  #     key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+  #   with_items:
+  #     - "{{ user_profile_path.results }}"
+  #   when: item.stdout != ""
+  #   tags: ssh, ssh_keys
+
+  # прописываем пользователям доверенные ключи
+  - name: Set authorized public key taken from file
     authorized_key:
-      user: root
+      user: "{{ item.1.item }}"
       state: present
-      key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+      key: "{{ lookup('file', item.0) }}"
+    with_nested:
+      - "{{ public_ssh_keys }}"
+      - "{{ user_profile_path.results }}"
+    when: item.1.stdout != ""
     tags: ssh, ssh_keys
 
-  - name: Set authorized key taken from file
-    authorized_key:
-      user: "{{ item }}"
-      state: present
-      key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
-    with_items:
-      - "{{user_profile_exists.results}}"
-    when: item.stat.exists == True
+  # копируем закрытый ключ для перемещения между машинами
+  - name: Copy ssh local cloud key
+    copy:
+      src: "{{ item.0 }}"
+      dest: "{{ item.1.stdout }}/.ssh/" #"{{ item.1.invocation.module_args.path }}/.ssh/"
+      mode: preserve
+    with_nested:
+      - "{{ private_ssh_keys }}"
+      - "{{ user_profile_path.results }}"
+    when: item.1.stdout != "" #and item.1.stderr != ""
     tags: ssh, ssh_keys
