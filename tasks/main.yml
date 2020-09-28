@@ -1,4 +1,7 @@
 ---
+  - debug: var=inventory_hostname
+  - debug: var=ansible_hostname
+
   - name: Gathering OS Family facts
     setup: filter='ansible_os_family'
     #setup: filter='*'
@@ -36,7 +39,7 @@
     hostname:
       name: "{{ item }}"
     with_items:
-      - "{{ ansible_hostname }}"
+      - "{{ inventory_hostname_short }}"
     tags: hostname
 
   # Install packages
@@ -61,7 +64,7 @@
   - name: installing additional packages
     package:
       pkg: "{{ item }}"
-      update_cache: yes
+      update_cache: no
     with_items:
       - "{{ additional_packages | default([]) }}"
     tags: common, packages
