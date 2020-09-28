@@ -5,7 +5,7 @@ galaxy_info:
   description: basic server config
   license: license BSD
   min_ansible_version: 1.2
-  galaxy_tags: [common]
+  galaxy_tags: common
   platforms:
     - name: Ubuntu
       versions:

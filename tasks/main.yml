@@ -34,10 +34,7 @@
 
   - name: Set hostname
     hostname:
-      name: "{{ item }}"
-    with_items:
-      - "{{ hostname }}"
-    when: item != "default"
+      name: "{{ ansible_hostname }}"
     tags: hostname
 
   # Install packages
