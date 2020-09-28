@@ -34,7 +34,9 @@
 
   - name: Set hostname
     hostname:
-      name: "{{ ansible_hostname }}"
+      name: "{{ item }}"
+    with_items:
+      - "{{ ansible_hostname }}"
     tags: hostname
 
   # Install packages
