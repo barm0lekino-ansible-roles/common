@@ -9,10 +9,10 @@
     when: (ansible_os_family == "RedHat")
     tags: ["common"]
 
-  - name: Reload systemd-timesyncd
+  - name: Restart systemd-timesyncd
     service:
       name: systemd-timesyncd
-      state: reloaded
+      state: restarted
 
   - name: Reload sshd
     service:
