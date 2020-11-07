@@ -142,7 +142,7 @@ fi
 # установка цвета для вывода, чтобы он отличался от вводимого пользователем
 trap 'printf "\e[0m" "$_"' DEBUG
 
-complete -C /usr/local/bin/terraform terraform
+complete -C /usr/bin/terraform terraform
 
 # цветной режим в vim и пр (меняем 8 цветов на 256)
 if [ -n "$DISPLAY" -a "$TERM" == "xterm" ]; then

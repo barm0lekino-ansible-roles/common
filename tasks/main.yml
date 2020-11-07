@@ -31,7 +31,7 @@
       regexp: '^NTP'
       line: NTP={{ ntpserver }}
     notify:
-      - Reload systemd-timesyncd
+      - Restart systemd-timesyncd
     when: ntpserver != "default"
     tags: ntp
 
