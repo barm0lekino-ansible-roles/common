@@ -1,4 +1,7 @@
 ---
+  install_packages: true
+  install_additional_packages: false
+
   config_users:
     - root
     - ubuntu
@@ -19,25 +22,25 @@
   deb_packages:
     - iptables-persistent
     - aptitude
-    - htop
 
   rh_packages:
     - epel-release
     - iptables-services
-    - htop
 
   packages:
     - curl
     - wget
     - git
+    - jq
     - iptables
     - net-tools
     - vim
-    - nano
     - unzip
     - telnet
     #- tmux
     #- sshpass
+  additional_packages:
+    - htop
 
   hostname:
     - default

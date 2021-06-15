@@ -59,6 +59,7 @@
       update_cache: yes
     with_items:
       - "{{ packages }}"
+    when: install_packages == true
     tags: common, packages
 
   - name: installing additional packages
@@ -67,4 +68,5 @@
       update_cache: no
     with_items:
       - "{{ additional_packages | default([]) }}"
+    when: install_additional_packages == true
     tags: common, packages
