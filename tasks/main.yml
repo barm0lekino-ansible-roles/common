@@ -12,8 +12,16 @@
     #setup: filter='*'
     tags: common
 
+  - name: include common tasks
+    include: common.yml
+    tags: common
+
   - name: include profiles config
     include: profiles.yml
+    tags: common, profiles
+
+  - name: include users config
+    include: user_config.yml
     tags: common
 
 #  - name: include iptables task
@@ -24,54 +32,7 @@
     include: ssh.yml
     tags: common, ssh
 
-  - name: Set timezone to Europe/Moscow
-    timezone:
-      name: Europe/Moscow
-    tags: common
-
-  - name: Set NTP server
-    lineinfile:
-      dest: /etc/systemd/timesyncd.conf
-      state: present
-      regexp: '^NTP'
-      line: NTP={{ ntpserver }}
-    notify:
-      - Restart systemd-timesyncd
-    when: ntpserver != "default"
-    tags: ntp
-
-  - name: Set hostname
-    hostname:
-      name: "{{ item }}"
-    with_items:
-      - "{{ inventory_hostname_short }}"
-    tags: hostname
-
   # Install packages
-  - name: include Debian tasks
-    include: debian.yml
-    when: (ansible_os_family == "Debian")
-    tags: common
-
-  - name: include RedHat tasks
-    include: redhat.yml
-    when: (ansible_os_family == "RedHat")
-    tags: common
-
-  - name: installing common packages
-    package:
-      pkg: "{{ item }}"
-      update_cache: yes
-    with_items:
-      - "{{ packages }}"
-    when: install_packages == true
-    tags: common, packages
-
-  - name: installing additional packages
-    package:
-      pkg: "{{ item }}"
-      update_cache: no
-    with_items:
-      - "{{ additional_packages | default([]) }}"
-    when: install_additional_packages == true
+  - name: Install packages
+    include: packages.yml
     tags: common, packages

@@ -1,0 +1,24 @@
+---
+
+- name: Set NTP server
+  lineinfile:
+    dest: /etc/systemd/timesyncd.conf
+    state: present
+    regexp: '^NTP'
+    line: NTP={{ ntpserver }}
+  notify:
+    - Restart systemd-timesyncd
+  when: ntpserver != "default"
+  tags: ntp
+
+- name: Set timezone to Europe/Moscow
+  timezone:
+    name: Europe/Moscow
+  tags: common
+
+- name: Set hostname
+  hostname:
+    name: "{{ item }}"
+  with_items:
+    - "{{ inventory_hostname_short }}"
+  tags: hostname

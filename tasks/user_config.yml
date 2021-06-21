@@ -1,0 +1,7 @@
+---
+- name: Add users to groupp
+  user:
+    name: "{{ config_users }}"
+    groups: "{{ add_users_to_group }}"
+    append: yes
+  when: add_users_to_group | default(no)

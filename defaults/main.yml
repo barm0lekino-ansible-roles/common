@@ -7,6 +7,9 @@
     - ubuntu
     - ak
 
+  # add_users_to_group:
+  #   - docker
+
   ssh:
     TCPKeepAlive: 'yes'
     ClientAliveInterval: 300

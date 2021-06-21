@@ -1,9 +1,0 @@
----
-  - name: installing Debian/Ubuntu packages
-    package:
-      pkg: "{{ item }}"
-      update_cache: yes
-    with_items:
-      - "{{ deb_packages }}"
-    when: install_packages == true
-    tags: ["common", "packages"]

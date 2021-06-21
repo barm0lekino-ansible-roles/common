@@ -9,13 +9,13 @@
     ignore_errors: true
     tags: profile, copy, ssh_keys
 
-  # - name: Check users profile path
-  #   debug:
-  #     msg: "name (item): {{ item.item }}, stdout: {{ item.stdout }}, stderr: {{ item.stderr }}" #" path: {{ item.user.invocation.module_args.path }}" #" exist: {{item.stat.exists}}, item_name:{{item.item}}, path: {{item.invocation.module_args.path}}"
-  #   with_items:
-  #     - "{{ user_profile_path.results }}"
-  #   #when: item.stdout != ""
-  #   tags: profile, copy, ssh_keys, debug
+  - name: Check users profile path
+    debug:
+      msg: "name (item): {{ item.item }}, stdout: {{ item.stdout }}, stderr: {{ item.stderr }}" #" path: {{ item.user.invocation.module_args.path }}" #" exist: {{item.stat.exists}}, item_name:{{item.item}}, path: {{item.invocation.module_args.path}}"
+    with_items:
+      - "{{ user_profile_path.results }}"
+    #when: item.stdout != ""
+    tags: profile, copy, ssh_keys, debug
 
   # Копируем файлы в профили пользователей (если они есть)
   # config_users находится внутри user_profile_exists.results.item
@@ -24,7 +24,7 @@
       src: files/profile/
       dest: "{{ item.stdout }}" #{{item.invocation.module_args.path}}
       owner: "{{ item.item }}"
-      group: "{{ item.item }}"
+      #group: "{{ item.item }}"
     with_items:
       - "{{ user_profile_path.results }}"
     when: item.stdout != ""
