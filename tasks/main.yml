@@ -1,9 +1,14 @@
 ---
-  - debug: var=inventory_hostname
-  - debug: var=ansible_hostname
+  - name: Debug
+    debug:
+      var: inventory_hostname
+  - name: Debug
+    debug:
+      var: ansible_hostname
 
   - name: Gathering OS Family facts
-    setup: filter='ansible_os_family'
+    setup:
+      filter: 'ansible_os_family'
     #setup: filter='*'
     tags: common
 

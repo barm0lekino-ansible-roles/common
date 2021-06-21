@@ -1,14 +1,15 @@
-#---
 - name: PYTHON_INSTALL
   hosts: all
   strategy: linear # отключаем mitogen до установки питона
   gather_facts: no # нужно отключить предварительный сбор сведений, т.к. сначала дожны отработать задачи pre_tasks
   become: yes
 
+  # если на хосте не установлен ключ, подключаемся по паролю
   pre_tasks:
+
     - name: Include extra vars
       include_vars:
-        file: ~/.ssh/ansible_linux_pwd
+        file: ansible_vars
         name: ext_vars
 
     - name: Set facts
@@ -16,55 +17,45 @@
         become_user: "{{ ext_vars.SUDO_USER }}"
         ansible_become_pass: "{{ ext_vars.SUDO_PASSWORD }}"
 
-    - debug: msg="become_user = {{ become_user }}" #, ansible_become_pass = {{ ansible_become_pass }}"
+    - name: Debug
+      debug:
+        msg: "become_user = {{ become_user }}" #, ansible_become_pass = {{ ansible_become_pass }}"
 
-    - name: Get OS
-      raw: cat /etc/*release | grep ^ID_LIKE= | tr -d "\n"
-      register: os
-    #- debug: msg="os = {{ os }}"
-    #- debug: msg="os = {{ os.stdout }} oss= {{ os.stdout_lines }}"
+  roles:
+    - barm0leykin.python
 
-    - name: check /usr/bin/python
-      raw: test -e /usr/bin/python
-      register: python_is_absent
-      ignore_errors: true
-    #- debug: msg="python_is_absent = {{ python_is_absent.rc }}"
 
-    - name: check /usr/bin/python3
-      raw: test -e /usr/bin/python3
-      register: python3_is_absent
-      ignore_errors: true
-      when: python_is_absent.rc == 1
-
-    - name: run apt update and install python
-      raw: "{{ item }}"
-      loop:
-        - sudo apt update
-        - sudo apt install -y python3-minimal
-      become: true
-      when: '"debian" in os.stdout and python_is_absent.rc == 1 and python3_is_absent.rc == 1'
-
-    - name: run yum install python
-      raw: "{{ item }}"
-      loop:
-        - sudo yum -y install python3
-      become: true
-      when: '"rhel" in os.stdout and python_is_absent.rc == 1 and python3_is_absent.rc == 1'
-
-    - name: set symlink to python3
-      raw: ln -s /usr/bin/python3 /usr/bin/python
-      when: python_is_absent.rc == 1 #and python3_is_absent.rc == 0
-
-- name: COMMON_LINUX_CONFIG
+- name: HOST_CONFIG
   tags:
     - common
   hosts: all
-  strategy: mitogen_linear # если используется mitogen
+  strategy: linear #mitogen_linear
   become: yes
-  #gather_facts: yes
+  remote_user: root
+
   vars:
+    install_packages: true
+    install_additional_packages: false
+
     config_users:
       - ubuntu
       - ak
+    private_ssh_keys:
+      - ~/.ssh/cloud
+    public_ssh_keys:
+      #- ~/.ssh/id_rsa.pub
+      - ~/.ssh/ak.pub
+      - ~/.ssh/cloud.pub
+
+    # barm0leykin.iptables
+    iptables:
+      disable_firewall: yes
+      enable_ping: yes
+      ports:
+        - 22
+        - 80
+        - 443
+
   roles:
     - barm0leykin.common
+    - barm0leykin.iptables
